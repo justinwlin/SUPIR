@@ -1477,7 +1477,7 @@ with (block):
                         populate_gallery_button.click(fn=populate_gallery, outputs=[result_gallery, result_slider],
                                                       show_progress=True, queue=True)
                     with gr.Row():
-                        upscale_slider = gr.Slider(label="Upscale Size", minimum=1, maximum=8, value=1, step=0.1)
+                        upscale_slider = gr.Slider(label="Upscale Size", minimum=1, maximum=20, value=1, step=0.1)
                     with gr.Row():
                         apply_llava_checkbox = gr.Checkbox(label="Apply LLaVa", value=False)
                         apply_supir_checkbox = gr.Checkbox(label="Apply SUPIR", value=True)
