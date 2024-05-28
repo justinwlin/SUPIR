@@ -28,14 +28,14 @@ from SUPIR.utils import shared
 from SUPIR.utils.compare import create_comparison_video
 from SUPIR.utils.face_restoration_helper import FaceRestoreHelper
 from SUPIR.utils.model_fetch import get_model
-from SUPIR.utils.rename_meta import rename_meta_key
+from SUPIR.utils.rename_meta import rename_meta_key, rename_meta_key_reverse
 from SUPIR.utils.ckpt_downloader import download_checkpoint_handler, download_checkpoint
 
 from SUPIR.utils.status_container import StatusContainer, MediaData
 from llava.llava_agent import LLavaAgent
 from ui_helpers import is_video, extract_video, compile_video, is_image, get_video_params, printt
 
-SUPIR_REVISION = "v48"
+SUPIR_REVISION = "v49"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--ip", type=str, default='127.0.0.1', help="IP address for the server to listen on.")
@@ -109,6 +109,42 @@ if torch.cuda.is_available() and args.autotune:
 
 shared.opts.half_mode = args.loading_half_params  
 shared.opts.fast_load_sd = args.fast_load_sd
+
+
+def apply_metadata(image_path):
+    if image_path is None:
+        return
+
+    # Open the image and extract metadata
+    with Image.open(image_path) as img:
+        metadata = img.info
+        global elements_dict, extra_info_elements
+        updates = []
+        for key, value in metadata.items():
+            # Check if the key is in the dictionary of UI elements
+            if key in elements_dict:
+                if key == "src_file":
+                    # Skip updating the "src_file" element
+                    updates.append(gr.update())
+                else:
+                    # Update the value of the element if it exists and is not "src_file"
+                    elements_dict[key].value = value
+                    updates.append(gr.update(value=elements_dict[key].value))
+            else:
+                # If the key is not found in elements_dict, try to find a matching key using rename_meta_key
+                renamed_key = rename_meta_key(key)
+                if renamed_key in elements_dict:
+                    elements_dict[renamed_key].value = value
+                    updates.append(gr.update(value=elements_dict[renamed_key].value))
+                elif renamed_key in extra_info_elements:
+                    # Update the value of the element in extra_info_elements if it exists
+                    extra_info_elements[renamed_key].value = value
+                    updates.append(gr.update(value=value))
+                else:
+                    # Append an update with no changes if the key is not recognized
+                    updates.append(gr.update())
+
+    return updates
 
 if args.fp8:
     shared.opts.half_mode = args.fp8
@@ -1727,14 +1763,13 @@ with (block):
                     output_files_refresh_btn = gr.Button(value=refresh_symbol, elem_classes=["refresh_button"],
                                                          size="sm")
 
-
                     def refresh_output_files():
                         return gr.update(value=args.outputs_folder)
-
 
                     output_files_refresh_btn.click(fn=refresh_output_files, outputs=[meta_file_browser],
                                                    show_progress=True, queue=True)
             with gr.Column(elem_classes=["output_view_col"]):
+                apply_metadata_button = gr.Button("Apply Metadata")  # Add this line
                 meta_image = gr.Image(type="filepath", label="Output Image", elem_id="output_image", visible=True, height="42.5vh", sources=["upload"])
                 meta_video = gr.Video(label="Output Video", elem_id="output_video", visible=False, height="42.5vh")
                 metadata_output = gr.Textbox(label="Image Metadata", lines=25, max_lines=50, elem_id="output_metadata")
@@ -1904,6 +1939,8 @@ with (block):
     load_preset_button.click(fn=load_preset, inputs=[load_preset_dropdown],outputs=[output_label] + elements+elements_extra,
                 show_progress=True, queue=True)
 
+    apply_metadata_button.click(fn=apply_metadata, inputs=[meta_image], outputs=[output_label] + elements+elements_extra,
+                show_progress=True, queue=True)
 
     def do_nothing():
         pass

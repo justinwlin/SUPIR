@@ -25,3 +25,30 @@ def rename_meta_key(key):
         "ckpt_select": "Used Base Model"
     }
     return key_mapping.get(key, key)
+
+def rename_meta_key_reverse(key):
+    key_mapping = {
+        "Text Guidance Scale": "s_cfg",
+        "Used Face Restore Prompt": "face_prompt",
+        "Used Final Prompt": "caption",
+        "Upscale Ratio": "upscale",
+        "Stage2 Guidance Strength": "s_stage2",
+        "Stage1 Guidance Strength": "s_stage1",
+        "Linear CFG Start": "spt_linear_CFG",
+        "Linear Stage2 Guidance Start": "spt_linear_s_stage2",
+        "LLaVA Top P": "top_p",
+        "User Provided Prompt": "main_prompt",
+        "LLaVA Temperature": "temperature",
+        "Face Options Text Guidance Scale": "face_resolution",
+        "Default Positive Prompt": "a_prompt",
+        "Default Negative Prompt": "n_prompt",
+        "Auto-Encoder Data Type": "ae_dtype",
+        "Diffusion Data Type": "diff_dtype",
+        "Number Of Steps": "edm_steps",
+        "Face Options BG restoration": "apply_bg",
+        "Face Options Face restoration": "apply_face",
+        "Auto Caption With LLaVA": "apply_llava",
+        "Upscale With SUPIR": "apply_supir",
+        "Used Base Model": "ckpt_select"
+    }
+    return key_mapping.get(key, key)
