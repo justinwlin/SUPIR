@@ -56,8 +56,8 @@ def get_remote_file_size(url):
 folders_and_files = {
     os.path.join('models'): [
         ('https://huggingface.co/laion/CLIP-ViT-bigG-14-laion2B-39B-b160k/resolve/main/open_clip_pytorch_model.bin', None),
-        ('https://huggingface.co/justinwlinx/supir1/resolve/main/SUPIR-v0F.ckpt', 'v0F.ckpt'),
-        ('https://huggingface.co/justinwlinx/supir1/resolve/main/SUPIR-v0Q.ckpt', 'v0Q.ckpt')
+        ('https://huggingface.co/ashleykleynhans/SUPIR/resolve/main/SUPIR-v0F.ckpt', 'v0F.ckpt'),
+        ('https://huggingface.co/ashleykleynhans/SUPIR/resolve/main/SUPIR-v0Q.ckpt', 'v0Q.ckpt')
     ]
 }
 
