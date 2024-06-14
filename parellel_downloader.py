@@ -1,6 +1,7 @@
 import os
 import requests
 from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor
 
 def create_directory(path):
     """Create directory if it does not exist."""
@@ -34,15 +35,16 @@ def download_file(url, folder_path, file_name=None):
 
 # Define the folders and their corresponding file URLs with optional file names
 folders_and_files = {
-    os.path.join("SUPIR", "models", "checkpoints"): [
+    os.path.join("models", "checkpoints"): [
         ("https://huggingface.co/RunDiffusion/Juggernaut-XL-v9/resolve/main/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors", None),
         ("https://civitai.com/api/download/models/360292?token=22c5b4cb1989d2c3ff29f222d2840884", "WildCardX_XL_Lightning.safetensors")
     ]
 }
 
-
 # Perform the download process
 for folder, files in folders_and_files.items():
     create_directory(folder)
-    for file_url, file_name in files:
-        download_file(file_url, folder, file_name)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(download_file, file_url, folder, file_name) for file_url, file_name in files]
+        for future in futures:
+            future.result()
